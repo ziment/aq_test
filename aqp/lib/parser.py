@@ -74,7 +74,8 @@ class Parser:
                 return Action.UNKNOWN
 
     def _build_current_config(self) -> None:
-        assert self._current_config is not None  # assert for mypy
+        if self._current_config is None:
+            raise ParserError("No valid configuration found")
 
         self._check_current_config()
         self._configurations[self._current_config.config_id] = self._current_config
