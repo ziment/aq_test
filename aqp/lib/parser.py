@@ -29,7 +29,9 @@ class Parser:
                 self._current_config = Config(config_id=tok.value)
                 continue
 
-            self._check_config_exists()
+            if self._current_config is None:
+                raise ParserError("No valid configuration found")
+
             self._current_config = cast(Config, self._current_config)
 
             match tok:
@@ -72,11 +74,13 @@ class Parser:
                 return Action.UNKNOWN
 
     def _build_current_config(self) -> None:
+        assert self._current_config is not None  # assert for mypy
+
         self._check_current_config()
         self._configurations[self._current_config.config_id] = self._current_config
 
     def _check_current_config(self) -> None:
-        self._check_config_exists()
+        assert self._current_config is not None  # assert for mypy
 
         missing_keys = []
 
@@ -91,7 +95,3 @@ class Parser:
 
         if len(missing_keys) > 0:
             raise ParserError(f"Missing required keys: {', '.join(missing_keys)}")
-
-    def _check_config_exists(self) -> None:
-        if self._current_config is None:
-            raise ParserError("No valid configuration found")
