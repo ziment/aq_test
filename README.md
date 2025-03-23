@@ -1,6 +1,8 @@
 # AQC Parser
 
-A command-line application for executing AQC (Aquarius Config) files, along with a library that provides a lexer and parser for the format. The project is fully type annotated. Type annotations are checked with [mypy](https://github.com/python/mypy).
+A command-line application for executing AQC (Aquarius Config) files, along with a library that provides a lexer and parser for the format. 
+
+The project is fully type annotated. Type annotations are checked with [mypy](https://github.com/python/mypy).
 
 ## AQC Specification
 
