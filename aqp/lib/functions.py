@@ -11,7 +11,8 @@ from .reader import IoReader, Reader, StringReader
 
 
 def loads(string: str) -> dict[int, Config]:
-    """Loads a ``Config`` from ``string``
+    """Loads a ``Config`` from ``string``.
+    Will not set ``path_to_config`` field in the returned config, since it has no way of knowing it
 
     Returns:
         dict[int, Config]: ``dict`` of all loaded configs, indexed by id
@@ -22,6 +23,7 @@ def loads(string: str) -> dict[int, Config]:
 
 def load(text_io: TextIO) -> dict[int, Config]:
     """Loads a ``Config`` from ``TextIO``
+    Will not set ``path_to_config`` field in the returned config, since it has no way of knowing it
 
     Returns:
         dict[int, Config]: ``dict`` of all loaded configs, indexed by id

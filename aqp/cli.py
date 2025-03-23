@@ -17,7 +17,6 @@ def main() -> None:
     with open(args.config_path, "r") as file:
         config_dict = load(file)
 
-    # todo add a func for loading a specific id
     config = config_dict[args.id]
     config.path_to_config = args.config_path
 
