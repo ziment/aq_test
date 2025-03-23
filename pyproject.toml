@@ -1,8 +1,11 @@
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = [
-    "--import-mode=importlib",
-]
+addopts = ["--import-mode=importlib"]
 
 [tool.mypy]
 disallow_untyped_defs = true
+
+[tool.ruff.lint]
+select = ["F", "W"]
+ignore = []
+extend-select = ["I"]
