@@ -3,7 +3,7 @@ from typing import Any
 
 
 class Token(ABC):
-    def __init__(self, value: Any) -> None:
+    def __init__(self, value: Any) -> None:  # noqa: ANN401
         self.value = value
 
 
@@ -25,3 +25,9 @@ class Mode(Token):
 class Action(Token):
     def __init__(self, value: str) -> None:
         super().__init__(value)
+
+    
+class ErrorToken(Token):
+    def __init__(self, error_message: str = "") -> None:
+        super().__init__(None)
+        self.error_message = error_message

@@ -1,24 +1,32 @@
 from abc import ABC, abstractmethod
 from typing import TextIO
+from io import StringIO
 
 
 class Reader(ABC):
     EOF = "\0"
+    NEW_LINE = "\n"
 
     def __init__(self: "Reader") -> None:
-        self.position = 0
-        self.line = 0
+        self._position = 0
+        self._line = 0
 
-    def forward(self) -> None:
-        if self.peek() == "\n":
-            self.position = 0
-            self.line += 1
+    def forward(self, offset: int = 1) -> None:
+        chars = self.prefix(offset)
+
+        newline_count = chars.count(Reader.NEW_LINE)
+
+        if newline_count > 0:
+            last_newline = chars.rfind(Reader.NEW_LINE)
+            self._line += newline_count
+            self._position = len(chars) - (last_newline + 1)
         else:
-            self.position += 1
-        self._forward_impl()
+            self._position += offset
+
+        self._forward_impl(offset)
 
     @abstractmethod
-    def _forward_impl(self, length: int = 1) -> None: ...
+    def _forward_impl(self, offset: int = 1) -> None: ...
 
     @abstractmethod
     def prefix(self, length: int) -> str: ...
@@ -39,28 +47,6 @@ class Reader(ABC):
         return False
 
 
-class StringReader(Reader):
-    def __init__(self, string: str) -> None:
-        super().__init__()
-        self.string = string
-        self.index = 0
-
-    def _forward_impl(self, length: int = 1) -> None:
-        self.index += length
-
-    def prefix(self, length: int) -> str:
-        return self.string[self.index : self.index + length]
-
-    def peek(self, position: int = 0) -> str:
-        if self.eof(position):
-            return Reader.EOF
-
-        return self.string[self.index + position]
-
-    def eof(self, offset: int = 0) -> bool:
-        return self.index + offset >= len(self.string)
-
-
 class IoReader(Reader):
     def __init__(self, text_io: TextIO) -> None:
         super().__init__()
@@ -76,7 +62,6 @@ class IoReader(Reader):
 
     def _forward_impl(self, length: int = 1) -> None:
         self._fill_buffer(length)
-        # Remove the first `length` characters from the buffer.
         self.buffer = self.buffer[length:]
 
     def prefix(self, length: int) -> str:
@@ -92,3 +77,8 @@ class IoReader(Reader):
     def eof(self, offset: int = 0) -> bool:
         self._fill_buffer(offset + 1)
         return len(self.buffer) < (offset + 1)
+
+
+class StringReader(IoReader):
+    def __init__(self, string: str) -> None:
+        super().__init__(StringIO(string))
