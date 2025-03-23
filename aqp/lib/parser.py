@@ -29,7 +29,7 @@ class Parser:
                 self._current_config = Config(config_id=tok.value)
                 continue
 
-            self._check_current_config()
+            self._check_config_exists()
             self._current_config = cast(Config, self._current_config)
 
             match tok:
@@ -43,10 +43,10 @@ class Parser:
                     self._current_config.action = self._action_from_string(tok.value)
 
                 case tokens.ErrorToken():
-                    raise ParserError(tok.error_message)
+                    raise ParserError(f"{tok.text_pos}: {tok.error_message}")
 
                 case _:
-                    raise ParserError("Unknown token")
+                    raise ParserError(f"{tok.text_pos}: unknown token")
 
         self._build_current_config()
         return self._configurations

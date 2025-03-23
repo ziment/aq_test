@@ -1,5 +1,5 @@
 import os
-from typing import Any, Callable, Iterable, Collection, TextIO
+from typing import Any, Callable, Collection, TextIO
 
 from .config import Action, Config, FileMode
 from .error import AqpError
@@ -7,12 +7,26 @@ from .lexer import Lexer
 from .parser import Parser
 from .reader import IoReader, Reader, StringReader
 
+"""Collection of public functions for working with AQC configs"""
+
 
 def loads(string: str) -> dict[int, Config]:
+    """Loads a ``Config`` from ``string``
+
+    Returns:
+        dict[int, Config]: ``dict`` of all loaded configs, indexed by id
+    """
+
     return _load(StringReader(string))
 
 
 def load(text_io: TextIO) -> dict[int, Config]:
+    """Loads a ``Config`` from ``TextIO``
+
+    Returns:
+        dict[int, Config]: ``dict`` of all loaded configs, indexed by id
+    """
+
     return _load(IoReader(text_io))
 
 
@@ -35,9 +49,17 @@ def _get_files(config: Config) -> Collection[str | os.PathLike]:
 
 
 def execute_config(config: Config) -> dict:
-    # todo: add better config checking
+    """Executes ``config``, writing the results to a ``dict``.
+
+    Returns:
+        dict: result of executing the config
+    """
+
     if config.action_path is None:
         raise AqpError("Action path is not provided")
+
+    file_paths = _get_files(config)
+    line_handler = _get_line_handler(config)
 
     json_dict: dict[str, Any] = {
         "configurationId": config.config_id,
@@ -50,16 +72,9 @@ def execute_config(config: Config) -> dict:
 
     out: dict[int, dict[int, str]] = {}
 
-    file_paths = _get_files(config)
-    line_handler = _get_line_handler(config)
-
     file_count = len(file_paths)
 
     for file_ind, file_path in enumerate(file_paths, start=1):
-        # todo: maybe return Sized?
-        # counting files in a weird way since get_files returns an Iterable
-        file_count = max(file_count, file_ind)
-
         with open(file_path) as file:
             for line_ind, line in enumerate(file, start=1):
                 if line_ind not in out:

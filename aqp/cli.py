@@ -8,7 +8,7 @@ from aqp.lib.functions import execute_config, load
 def main() -> None:
     parser = argparse.ArgumentParser(prog="aqp", description="Parses AQC config files")
 
-    parser.add_argument("path", help="path to the AQC config file")
+    parser.add_argument("config_path", help="path to the AQC config file")
     parser.add_argument("id", type=int, help="configuration id to parse")
     parser.add_argument("-o", "--output", help="output file path")
 
@@ -23,7 +23,7 @@ def main() -> None:
     json_dict = execute_config(config[args.id])
 
     if args.output is None:
-        config_path = pathlib.Path(args.path)
+        config_path = pathlib.Path(args.config_path)
         args.output = config_path.with_stem(config_path.stem + "_out").with_suffix(
             ".json"
         )

@@ -10,11 +10,15 @@ _ESCAPABLE_CHARS = "#\\"
 
 
 class Lexer:
+    """A lexer for AQC files"""
+
     def __init__(self, reader: Reader) -> None:
         self._reader = reader
         self._skip_current_token = False
 
     def tokenise(self) -> list[tokens.Token]:
+        """Returns a ``list`` of all tokens"""
+
         token_list = []
 
         while True:
@@ -26,6 +30,8 @@ class Lexer:
         return token_list
 
     def next_token(self) -> Optional[tokens.Token]:
+        """Returns the next token, or ``None`` if at EOF."""
+
         if self._skip_current_token:
             self._read_until(_NEW_STATEMENT_CHAR)
             self._skip_current_token = False
@@ -37,9 +43,7 @@ class Lexer:
 
         if not self._reader.check(_NEW_STATEMENT_CHAR):
             self._skip_current_token = True
-            return tokens.ErrorToken(
-                "Missing a new statement character"
-            )  # todo: add error msg
+            return tokens.ErrorToken("Missing a new statement character")
 
         if self._is_potential_id_char() or self._reader.check("id:"):
             self._skip_whitespace()
@@ -50,24 +54,24 @@ class Lexer:
                 self._reader.forward()
 
             id_value = int(string)
-            return tokens.Id(int(id_value))
+            return tokens.Id(int(id_value), self._reader.get_file_pos())
 
         if self._reader.check("mode:"):
             self._skip_whitespace()
             value = self._read_until((_NEW_STATEMENT_CHAR, _NEW_LINE))
-            return tokens.Mode(value)
+            return tokens.Mode(value, self._reader.get_file_pos())
 
         if self._reader.check("path:"):
             self._skip_whitespace()
             value = self._read_escaped_string()
-            return tokens.Path(value)
+            return tokens.Path(value, self._reader.get_file_pos())
 
         if self._reader.check("action:"):
             self._skip_whitespace()
             value = self._read_until((_NEW_STATEMENT_CHAR, _NEW_LINE))
-            return tokens.Action(value)
+            return tokens.Action(value, self._reader.get_file_pos())
 
-        return tokens.ErrorToken()  # todo: add description
+        return tokens.ErrorToken("unknown token", self._reader.get_file_pos())
 
     @overload
     def _read_until(

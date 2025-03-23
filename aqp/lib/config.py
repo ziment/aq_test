@@ -23,6 +23,7 @@ class Action(StrEnum):
         return self != Action.UNKNOWN
 
 
+
 @dataclass(kw_only=True)
 class Config:
     config_id: int
