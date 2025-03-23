@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import TextIO
 from io import StringIO
+from typing import TextIO
 
 
 class Reader(ABC):

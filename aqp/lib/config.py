@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from enum import StrEnum, auto
 from os import PathLike
-from typing import Iterable, Optional
+from typing import Collection, Optional
 
 
 class FileMode(StrEnum):
@@ -30,4 +30,4 @@ class Config:
     path_to_config: Optional[str | PathLike] = None
     mode: FileMode = FileMode.UNKNOWN
     action: Action = Action.UNKNOWN
-    action_path: Optional[Iterable[str | PathLike]] = None
+    action_path: Optional[Collection[str | PathLike]] = None

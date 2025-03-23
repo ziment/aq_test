@@ -1,7 +1,8 @@
 import os
-from typing import Any, Callable, Iterable, TextIO
+from typing import Any, Callable, Iterable, Collection, TextIO
 
 from .config import Action, Config, FileMode
+from .error import AqpError
 from .lexer import Lexer
 from .parser import Parser
 from .reader import IoReader, Reader, StringReader
@@ -15,7 +16,7 @@ def load(text_io: TextIO) -> dict[int, Config]:
     return _load(IoReader(text_io))
 
 
-def _get_files(config: Config) -> Iterable[str | os.PathLike]:
+def _get_files(config: Config) -> Collection[str | os.PathLike]:
     assert config.action_path is not None
 
     match config.mode:
@@ -30,13 +31,13 @@ def _get_files(config: Config) -> Iterable[str | os.PathLike]:
                         files.append(file_path)
             return files
         case _:
-            raise Exception  # todo: custom exceptions
+            raise AqpError(f"Unsupported file mode {config.mode}")
 
 
 def execute_config(config: Config) -> dict:
     # todo: add better config checking
     if config.action_path is None:
-        raise Exception
+        raise AqpError("Action path is not provided")
 
     json_dict: dict[str, Any] = {
         "configurationId": config.config_id,
@@ -52,7 +53,7 @@ def execute_config(config: Config) -> dict:
     file_paths = _get_files(config)
     line_handler = _get_line_handler(config)
 
-    file_count = 0
+    file_count = len(file_paths)
 
     for file_ind, file_path in enumerate(file_paths, start=1):
         # todo: maybe return Sized?
@@ -113,4 +114,4 @@ def _get_line_handler(config: Config) -> Callable[[str, int], str]:
         case Action.COUNT:
             return _count_handle_line
         case _:
-            raise Exception
+            raise AqpError(f"Unsupported action {config.action}")

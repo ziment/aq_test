@@ -1,11 +1,8 @@
-from typing import Collection, Optional, Sequence, cast
-
 import pytest
 from pytest_mock import MockerFixture
 
 from aqp.lib.config import Action as ConfigAction
 from aqp.lib.config import FileMode
-from aqp.lib.lexer import Lexer
 from aqp.lib.parser import Parser, ParserError
 from aqp.lib.tokens import Action, ErrorToken, Id, Mode, Path, Token
 

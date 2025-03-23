@@ -26,7 +26,7 @@ class Action(Token):
     def __init__(self, value: str) -> None:
         super().__init__(value)
 
-    
+
 class ErrorToken(Token):
     def __init__(self, error_message: str = "") -> None:
         super().__init__(None)

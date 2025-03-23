@@ -1,11 +1,12 @@
-from typing import Optional
+from typing import Optional, cast
 
 from . import tokens
 from .config import Action, Config, FileMode
+from .error import AqpError
 from .lexer import Lexer
 
 
-class ParserError(Exception): ...
+class ParserError(AqpError): ...
 
 
 class Parser:
@@ -21,15 +22,17 @@ class Parser:
             if not tok:
                 break
 
-            # todo: fix mypy complaining aboutn none
+            if isinstance(tok, tokens.Id):
+                if self._current_config:
+                    self._build_current_config()
+
+                self._current_config = Config(config_id=tok.value)
+                continue
+
+            self._check_current_config()
+            self._current_config = cast(Config, self._current_config)
 
             match tok:
-                case tokens.Id():
-                    if self._current_config:
-                        self._build_current_config()
-
-                    self._current_config = Config(config_id=tok.value)
-
                 case tokens.Path():
                     self._current_config.action_path = tok.value.split(", ")
 
@@ -73,8 +76,7 @@ class Parser:
         self._configurations[self._current_config.config_id] = self._current_config
 
     def _check_current_config(self) -> None:
-        if self._current_config is None:
-            raise ParserError("No valid configuration found")
+        self._check_config_exists()
 
         missing_keys = []
 
@@ -89,3 +91,7 @@ class Parser:
 
         if len(missing_keys) > 0:
             raise ParserError(f"Missing required keys: {', '.join(missing_keys)}")
+
+    def _check_config_exists(self) -> None:
+        if self._current_config is None:
+            raise ParserError("No valid configuration found")
