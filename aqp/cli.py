@@ -14,13 +14,14 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    with open(args.path, "r") as file:
-        config = load(file)
+    with open(args.config_path, "r") as file:
+        config_dict = load(file)
 
     # todo add a func for loading a specific id
-    print(config)
+    config = config_dict[args.id]
+    config.path_to_config = args.config_path
 
-    json_dict = execute_config(config[args.id])
+    json_dict = execute_config(config)
 
     if args.output is None:
         config_path = pathlib.Path(args.config_path)
@@ -29,7 +30,7 @@ def main() -> None:
         )
 
     with open(args.output, "w") as file:
-        json.dump(json_dict, file)
+        json.dump(json_dict, file, indent=4)
 
 
 if __name__ == "__main__":
